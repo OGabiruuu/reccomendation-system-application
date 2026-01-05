@@ -9,6 +9,7 @@ venv
 
 # Dependencias python
 __pycache__/
+.python-version
 
 # Arquivos arbitrários
 *.tmp

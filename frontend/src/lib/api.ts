@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3000";
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -36,10 +36,7 @@ apiClient.interceptors.response.use(
   (response) => response,
   (error) => {
     const message =
-      error?.response?.data?.message ||
-      error?.response?.statusText ||
-      error?.message ||
-      "Erro ao chamar a API";
+      error?.response?.data?.message || error?.response?.statusText || error?.message || "Erro ao chamar a API";
     const err = new Error(message) as Error & { status?: number };
     err.status = error?.response?.status;
     return Promise.reject(err);
@@ -59,7 +56,7 @@ export const api = {
     apiClient.delete<T>(url, config).then((res) => res.data),
 };
 
-// 
+//
 export const productApi = {
   create: (data: unknown) => api.post("/products", data),
   get: (id: string) => api.get(`/products/${id}`),
@@ -90,15 +87,13 @@ export const interactionApi = {
   create: (data: unknown) => api.post("/interactions", data),
   get: (userId: string | number, productId: string | number, sessionId: string | number) =>
     api.get(`/interactions/${userId}/${productId}/${sessionId}`),
-  update: (
-    userId: string | number,
-    productId: string | number,
-    sessionId: string | number,
-    data: unknown,
-  ) => api.patch(`/interactions/${userId}/${productId}/${sessionId}`, data),
+  update: (userId: string | number, productId: string | number, sessionId: string | number, data: unknown) =>
+    api.patch(`/interactions/${userId}/${productId}/${sessionId}`, data),
 };
 
 export const recommendationApi = {
   list: (productId?: string | number) =>
-    api.get("/recommendations", { params: productId ? { product_id: productId } : undefined }),
+    api.get("/recommendations", {
+      params: productId ? { product_id: productId } : undefined,
+    }),
 };

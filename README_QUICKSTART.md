@@ -5,7 +5,7 @@ Passo a passo simples para levantar backend e frontend.
 ## Requisitos
 - Docker + Docker Compose
 - Node 18+ (frontend)
-- Python 3.10+ e `python3 -m venv` (backend)
+- Python 3.13 e `python3 -m venv` (backend)
 
 ## Backend
 1. Entre na pasta `backend`.
