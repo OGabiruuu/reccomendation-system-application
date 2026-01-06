@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { productApi, collectionApi } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -56,6 +56,27 @@ export default function ProductsManagement() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  const mapApiProduct = (data: ApiProduct) => {
+    const colName = collections.find((c) => c.id === data.collection_id)?.name;
+
+    return {
+      id: String(data.id),
+      name: data.name,
+      price: data.price,
+      image: data.image,
+      category: data.category,
+      colors: Array.isArray(data.color) ? data.color.map((c: any, idx) => ({
+        name: c?.name ?? `Cor ${idx + 1}`,
+        hex: c?.hex ?? String(c ?? "#000000"),
+      })) : [],
+      sizes: data.size ? data.size.split(",").map((s) => s.trim()).filter(Boolean) : ["Único"],
+      description: data.description,
+      collection: colName,
+      collectionId: data.collection_id,
+      model: data.model,
+    } as Product;
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -63,32 +84,7 @@ export default function ProductsManagement() {
         const [apiCollections, apiProducts] = await Promise.all([collectionApi.list().catch(() => []), productApi.list().catch(() => [])]);
         const cols = apiCollections as Collection[];
         setCollections(cols);
-        const mapped = (apiProducts as ApiProduct[]).map((p) => {
-          const colName = cols.find((c) => c.id === p.collection_id)?.name;
-          return {
-            id: String(p.id),
-            name: p.name,
-            price: p.price,
-            image: p.image,
-            category: p.category,
-            colors: Array.isArray(p.color)
-              ? p.color.map((c: any, idx) => ({
-                  name: c?.name ?? `Cor ${idx + 1}`,
-                  hex: c?.hex ?? String(c ?? "#000000"),
-                }))
-              : [],
-            sizes: p.size
-              ? p.size
-                  .split(",")
-                  .map((s) => s.trim())
-                  .filter(Boolean)
-              : ["Único"],
-            description: p.description,
-            collection: colName,
-            collectionId: p.collection_id,
-            model: p.model,
-          } as Product;
-        });
+        const mapped = (apiProducts as ApiProduct[]).map((p) => mapApiProduct(p));
         setProducts(mapped);
         setError(null);
       } catch (err) {
@@ -151,15 +147,15 @@ export default function ProductsManagement() {
         category: saved.category,
         colors: Array.isArray(saved.color)
           ? saved.color.map((c: any, idx) => ({
-              name: c?.name ?? `Cor ${idx + 1}`,
-              hex: c?.hex ?? String(c ?? "#000000"),
-            }))
+            name: c?.name ?? `Cor ${idx + 1}`,
+            hex: c?.hex ?? String(c ?? "#000000"),
+          }))
           : [],
         sizes: saved.size
           ? saved.size
-              .split(",")
-              .map((s) => s.trim())
-              .filter(Boolean)
+            .split(",")
+            .map((s) => s.trim())
+            .filter(Boolean)
           : ["Único"],
         description: saved.description,
         collection: collections.find((c) => c.id === saved.collection_id)?.name,
