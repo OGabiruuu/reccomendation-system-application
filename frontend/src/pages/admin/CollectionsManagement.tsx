@@ -64,13 +64,9 @@ export default function ProductsManagement() {
 
   const filteredCollections = collections.filter((collection) => collection.name.toLowerCase().includes(searchTerm.toLowerCase()));
 
-  const toBackendPayload = (collection: AdminCollectionFormData) => ({
-    name: collection.name,
-  });
-
   const handleAddCollection = async (collection: AdminCollectionFormData) => {
     try {
-      const created = (await collectionApi.create(toBackendPayload(collection))) as ApiCollection;
+      const created = (await collectionApi.create(collection)) as ApiCollection;
       const mapped = mapApiCollection(created as ApiCollection);
       setCollections((prev) => [...prev, mapped]);
       toast.success("Coleção adicionada com sucesso!");

@@ -1,6 +1,6 @@
 from models.collection import Collection as CollectionModel
 from models.product import Product as ProductModel
-from schemas.collection import CollectionCreate
+from schemas.collection import CollectionCreate, CollectionUpdate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -57,4 +57,20 @@ async def delete_collection(db: AsyncSession, id: int):
     await db.delete(collection)
     await db.commit()
 
+    return collection
+
+
+async def update_collection(db: AsyncSession, id: int, data: CollectionUpdate):
+    """Atualiza campos de um produto"""
+    collection = await get_collection_by_id(db, id)
+    if not collection:
+        return None
+
+    updates = data.model_dump(exclude_unset=True)
+    for key, value in updates.items():
+        setattr(collection, key, value)
+
+    db.add(collection)
+    await db.commit()
+    await db.refresh(collection)
     return collection

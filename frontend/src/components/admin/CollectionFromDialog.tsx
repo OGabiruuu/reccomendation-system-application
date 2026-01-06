@@ -8,7 +8,7 @@ import { Button } from "../ui/button";
 export type AdminCollectionFormData = {
   id?: string;
   name: string;
-  quantity?: number;
+  quantity: number;
 };
 
 interface CollectionFormDialogProps {
@@ -20,20 +20,20 @@ interface CollectionFormDialogProps {
 
 export function CollectionFormDialog({ open, onOpenChange, collection, onSubmit }: CollectionFormDialogProps) {
   const [formData, setFormData] = useState({
-    name: "",
-    quantity: 0,
+    name: '',
+    quantity: '',
   });
 
   useEffect(() => {
     if (collection) {
       setFormData({
         name: collection.name,
-        quantity: collection.quantity,
+        quantity: collection.quantity.toString(),
       });
     } else {
       setFormData({
-        name: "",
-        quantity: 0,
+        name: '',
+        quantity: '',
       });
     }
   }, [collection, open]);
@@ -41,7 +41,7 @@ export function CollectionFormDialog({ open, onOpenChange, collection, onSubmit 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData.name) {
+    if (!formData.name || !formData.quantity) {
       toast.error("Preencha o campo obrigatório");
       return;
     }
@@ -49,6 +49,7 @@ export function CollectionFormDialog({ open, onOpenChange, collection, onSubmit 
     const collectionData: AdminCollectionFormData = {
       ...(collection ? { id: collection.id } : {}),
       name: formData.name,
+      quantity: parseInt(formData.quantity)
     };
 
     onSubmit(collectionData);
