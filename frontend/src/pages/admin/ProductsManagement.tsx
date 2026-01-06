@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useState } from 'react';
-import { productApi, collectionApi } from '@/lib/api';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Plus, Search, Pencil, Trash2 } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { ProductFormDialog, type AdminProductFormData } from '@/components/admin/ProductFormDialog';
-import { toast } from 'sonner';
+import { useEffect, useMemo, useState } from "react";
+import { productApi, collectionApi } from "@/lib/api";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Plus, Search, Pencil, Trash2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { ProductFormDialog, type AdminProductFormData } from "@/components/admin/ProductFormDialog";
+import { toast } from "sonner";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -49,7 +49,7 @@ type Product = {
 export default function ProductsManagement() {
   const [products, setProducts] = useState<Product[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [deletingProduct, setDeletingProduct] = useState<Product | null>(null);
@@ -60,10 +60,7 @@ export default function ProductsManagement() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [apiCollections, apiProducts] = await Promise.all([
-          collectionApi.list().catch(() => []),
-          productApi.list().catch(() => []),
-        ]);
+        const [apiCollections, apiProducts] = await Promise.all([collectionApi.list().catch(() => []), productApi.list().catch(() => [])]);
         const cols = apiCollections as Collection[];
         setCollections(cols);
         const mapped = (apiProducts as ApiProduct[]).map((p) => {
@@ -80,7 +77,12 @@ export default function ProductsManagement() {
                   hex: c?.hex ?? String(c ?? "#000000"),
                 }))
               : [],
-            sizes: p.size ? p.size.split(',').map((s) => s.trim()).filter(Boolean) : ['Único'],
+            sizes: p.size
+              ? p.size
+                  .split(",")
+                  .map((s) => s.trim())
+                  .filter(Boolean)
+              : ["Único"],
             description: p.description,
             collection: colName,
             collectionId: p.collection_id,
@@ -90,7 +92,7 @@ export default function ProductsManagement() {
         setProducts(mapped);
         setError(null);
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Erro ao carregar produtos';
+        const message = err instanceof Error ? err.message : "Erro ao carregar produtos";
         setError(message);
       } finally {
         setLoading(false);
@@ -100,9 +102,9 @@ export default function ProductsManagement() {
     // somente na montagem
   }, []);
 
-  const filteredProducts = products.filter(product =>
-    product.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.category.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredProducts = products.filter(
+    (product) =>
+      product.name.toLowerCase().includes(searchTerm.toLowerCase()) || product.category.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
   const toBackendPayload = (product: AdminProductFormData) => ({
@@ -110,37 +112,37 @@ export default function ProductsManagement() {
     price: product.price,
     color: product.colors,
     category: product.category,
-    size: product.sizes.join(','),
+    size: product.sizes.join(","),
     description: product.description,
     image: product.image,
-    model: product.model || 'manual',
+    model: product.model || "manual",
     collection_id: product.collectionId,
   });
 
   const handleAddProduct = async (product: AdminProductFormData) => {
     if (!product.collectionId) {
-      toast.error('Selecione uma coleção');
+      toast.error("Selecione uma coleção");
       return;
     }
     try {
-      const created = await productApi.create(toBackendPayload(product)) as ApiProduct;
-      const mapped = mapApiProduct(created);
+      const created = (await productApi.create(toBackendPayload(product))) as ApiProduct;
+      const mapped = mapApiProduct(created); // É preciso implementar essa funcao com o codigo da linha 69
       setProducts((prev) => [...prev, mapped]);
-      toast.success('Produto adicionado com sucesso!');
+      toast.success("Produto adicionado com sucesso!");
       setIsFormOpen(false);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro ao adicionar produto';
+      const message = err instanceof Error ? err.message : "Erro ao adicionar produto";
       toast.error(message);
     }
   };
 
   const handleEditProduct = async (updatedProduct: AdminProductFormData) => {
     if (!updatedProduct.id || !updatedProduct.collectionId) {
-      toast.error('Dados inválidos para edição.');
+      toast.error("Dados inválidos para edição.");
       return;
     }
     try {
-      const saved = await productApi.update(updatedProduct.id, toBackendPayload(updatedProduct)) as ApiProduct;
+      const saved = (await productApi.update(updatedProduct.id, toBackendPayload(updatedProduct))) as ApiProduct;
       const mapped: Product = {
         id: String(saved.id),
         name: saved.name,
@@ -153,16 +155,21 @@ export default function ProductsManagement() {
               hex: c?.hex ?? String(c ?? "#000000"),
             }))
           : [],
-        sizes: saved.size ? saved.size.split(',').map((s) => s.trim()).filter(Boolean) : ['Único'],
+        sizes: saved.size
+          ? saved.size
+              .split(",")
+              .map((s) => s.trim())
+              .filter(Boolean)
+          : ["Único"],
         description: saved.description,
         collection: collections.find((c) => c.id === saved.collection_id)?.name,
         collectionId: saved.collection_id,
         model: saved.model,
       };
       setProducts((prev) => prev.map((p) => (p.id === mapped.id ? mapped : p)));
-      toast.success('Produto atualizado com sucesso!');
+      toast.success("Produto atualizado com sucesso!");
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erro ao editar produto';
+      const message = err instanceof Error ? err.message : "Erro ao editar produto";
       toast.error(message);
     } finally {
       setEditingProduct(null);
@@ -174,10 +181,10 @@ export default function ProductsManagement() {
     if (deletingProduct) {
       try {
         await productApi.remove(deletingProduct.id);
-        setProducts(products.filter(p => p.id !== deletingProduct.id));
-        toast.success('Produto removido com sucesso!');
+        setProducts(products.filter((p) => p.id !== deletingProduct.id));
+        toast.success("Produto removido com sucesso!");
       } catch (err) {
-        const message = err instanceof Error ? err.message : 'Erro ao remover produto';
+        const message = err instanceof Error ? err.message : "Erro ao remover produto";
         toast.error(message);
       } finally {
         setDeletingProduct(null);
@@ -196,9 +203,7 @@ export default function ProductsManagement() {
       <div className="flex flex-col sm:flex-row justify-between gap-4">
         <div>
           <h1 className="text-3xl font-display font-bold">Produtos</h1>
-          <p className="text-muted-foreground mt-2">
-            Gerencie seu catálogo de produtos
-          </p>
+          <p className="text-muted-foreground mt-2">Gerencie seu catálogo de produtos</p>
         </div>
         <Button
           onClick={() => {
@@ -215,26 +220,13 @@ export default function ProductsManagement() {
       {/* Search */}
       <div className="relative">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-        <Input
-          placeholder="Buscar produtos..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-10"
-        />
+        <Input placeholder="Buscar produtos..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="pl-10" />
       </div>
 
       {/* Products Table */}
       <div className="bg-card rounded-xl border border-border/50 shadow-soft overflow-hidden">
-        {error && (
-          <div className="p-4 text-sm text-red-700 bg-red-50 border-b border-red-200">
-            {error}
-          </div>
-        )}
-        {loading && (
-          <div className="p-4 text-sm text-muted-foreground border-b border-border/50">
-            Carregando produtos...
-          </div>
-        )}
+        {error && <div className="p-4 text-sm text-red-700 bg-red-50 border-b border-red-200">{error}</div>}
+        {loading && <div className="p-4 text-sm text-muted-foreground border-b border-border/50">Carregando produtos...</div>}
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-muted/50 border-b border-border/50">
@@ -252,36 +244,24 @@ export default function ProductsManagement() {
                 <tr key={product.id} className="border-b border-border/50 hover:bg-muted/30 transition-smooth">
                   <td className="p-4">
                     <div className="w-16 h-16 rounded-lg overflow-hidden bg-muted">
-                      <img
-                        src={product.image}
-                        alt={product.name}
-                        className="w-full h-full object-cover"
-                      />
+                      <img src={product.image} alt={product.name} className="w-full h-full object-cover" />
                     </div>
                   </td>
                   <td className="p-4 font-medium">{product.name}</td>
                   <td className="p-4">
                     <Badge variant="outline">{product.category}</Badge>
                   </td>
-                  <td className="p-4 font-display font-bold text-primary">
-                    R$ {product.price.toFixed(2)}
-                  </td>
+                  <td className="p-4 font-display font-bold text-primary">R$ {product.price.toFixed(2)}</td>
                   <td className="p-4">
                     {product.collection ? (
-                      <Badge className="gradient-primary border-0">
-                        {product.collection}
-                      </Badge>
+                      <Badge className="gradient-primary border-0">{product.collection}</Badge>
                     ) : (
                       <span className="text-muted-foreground">-</span>
                     )}
                   </td>
                   <td className="p-4">
                     <div className="flex justify-end gap-2">
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => openEditDialog(product)}
-                      >
+                      <Button size="sm" variant="outline" onClick={() => openEditDialog(product)}>
                         <Pencil className="w-4 h-4" />
                       </Button>
                       <Button

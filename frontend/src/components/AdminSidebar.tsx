@@ -1,9 +1,9 @@
-import { NavLink } from 'react-router-dom';
-import { LayoutDashboard, Package, LogOut } from 'lucide-react';
-import { useAdminAuth } from '@/contexts/AdminAuthContext';
-import { useNavigate } from 'react-router-dom';
-import { Button } from './ui/button';
-import { toast } from 'sonner';
+import { NavLink } from "react-router-dom";
+import { LayoutDashboard, Package, LogOut, Boxes } from "lucide-react";
+import { useAdminAuth } from "@/contexts/AdminAuthContext";
+import { useNavigate } from "react-router-dom";
+import { Button } from "./ui/button";
+import { toast } from "sonner";
 
 export function AdminSidebar() {
   const { logout } = useAdminAuth();
@@ -11,19 +11,20 @@ export function AdminSidebar() {
 
   const handleLogout = () => {
     logout();
-    toast.success('Logout realizado com sucesso');
-    navigate('/');
+    toast.success("Logout realizado com sucesso");
+    navigate("/");
   };
 
   const navItems = [
-    { to: '/admin', icon: LayoutDashboard, label: 'Dashboard', end: true },
-    { to: '/admin/products', icon: Package, label: 'Produtos', end: false },
+    { to: "/admin", icon: LayoutDashboard, label: "Dashboard", end: true },
+    { to: "/admin/products", icon: Package, label: "Produtos", end: false },
+    { to: "/admin/collections", icon: Boxes, label: "Coleções", end: false },
   ];
 
   return (
     <aside className="w-64 bg-card border-r border-border/50 flex flex-col">
       <div className="p-6 border-b border-border/50">
-        <h2 className="text-xl font-display font-bold text-primary">Admin Panel</h2>
+        <h2 className="text-xl font-display font-bold text-primary">Painel do administrador</h2>
         <p className="text-sm text-muted-foreground">Gerenciamento</p>
       </div>
 
@@ -35,9 +36,7 @@ export function AdminSidebar() {
             end={item.end}
             className={({ isActive }) =>
               `flex items-center gap-3 px-4 py-3 rounded-lg transition-smooth ${
-                isActive
-                  ? 'bg-primary text-primary-foreground shadow-soft'
-                  : 'hover:bg-muted hover:text-primary'
+                isActive ? "bg-primary text-primary-foreground shadow-soft" : "hover:bg-muted hover:text-primary"
               }`
             }
           >

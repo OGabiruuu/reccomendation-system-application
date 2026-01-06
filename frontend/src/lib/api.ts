@@ -80,6 +80,7 @@ export const collectionApi = {
   create: (data: unknown) => api.post("/collections", data),
   get: (id: string) => api.get(`/collections/${id}`),
   list: () => api.get("/collections"),
+  update: (id: string, data: unknown) => api.patch(`/collections/${id}`, data),
   remove: (id: string) => api.delete(`/collections/${id}`),
 };
 
