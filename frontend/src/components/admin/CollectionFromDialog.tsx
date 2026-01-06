@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { Button } from "../ui/button";
 
 export type AdminCollectionFormData = {
   id?: string;
@@ -87,6 +88,16 @@ export function CollectionFormDialog({ open, onOpenChange, collection, onSubmit 
                 required
               />
             </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex gap-3 pt-4">
+            <Button type="button" variant="outline" onClick={() => onOpenChange(false)} className="flex-1">
+              Cancelar
+            </Button>
+            <Button type="submit" className="flex-1 gradient-primary">
+              {collection ? "Salvar Alterações" : "Criar Coleção"}
+            </Button>
           </div>
         </form>
       </DialogContent>
