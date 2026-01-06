@@ -1,3 +1,5 @@
+from typing import List, Optional
+
 from pydantic import BaseModel, Field
 
 
@@ -13,7 +15,13 @@ class CollectionCreate(CollectionBase):
     pass
 
 
-# Classe para ser usada em todos os métodos (por hora :))
+class CollectionUpdate(BaseModel):
+    """Campos opcionais para atualização parcial"""
+
+    name: Optional[str] = None
+    quantity: Optional[int] = None
+
+
 class Collection(CollectionBase):
     """Classe do tipo Coleçao para ser conectar com as models do ORM"""
 
