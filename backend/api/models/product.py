@@ -1,5 +1,5 @@
 from core.bdConnection import Base
-from sqlalchemy import Boolean, Column, Float, ForeignKey, Integer, String, JSON
+from sqlalchemy import JSON, Boolean, Column, Float, ForeignKey, Integer, String
 from sqlalchemy.orm import relationship
 
 
@@ -18,7 +18,12 @@ class Product(Base):
     disponible = Column(Boolean, nullable=False, default=True)
 
     # For the 1-to-many realtionship with Collection
-    collection_id = Column(Integer, ForeignKey("collections.id"), nullable=False)
+    collection_id = Column(
+        Integer, ForeignKey("collections.id", ondelete="CASCADE"), nullable=False
+    )
+
+    # Garante a exclusão dos produtos após deletar uma collection
+    collection = relationship("Collection", back_populates="products")
 
     # For the many-to-many relationship with interaction
     interactions = relationship(
