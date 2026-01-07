@@ -47,6 +47,7 @@ type Product = {
 };
 
 export default function ProductsManagement() {
+  const [apiProducts, setApiProducts] = useState<ApiProduct[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -58,6 +59,9 @@ export default function ProductsManagement() {
 
   const mapApiProduct = (data: ApiProduct) => {
     const colName = collections.find((c) => c.id === data.collection_id)?.name;
+
+    //console.log(collections)
+    //console.log(colName)
 
     return {
       id: String(data.id),
@@ -77,15 +81,22 @@ export default function ProductsManagement() {
     } as Product;
   }
 
+  // Obtem os dados durante a montagem
   useEffect(() => {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const [apiCollections, apiProducts] = await Promise.all([collectionApi.list().catch(() => []), productApi.list().catch(() => [])]);
+
+        // Obtendo todas as coleções
+        const apiCollections = await collectionApi.list().catch(() => []);
         const cols = apiCollections as Collection[];
         setCollections(cols);
-        const mapped = (apiProducts as ApiProduct[]).map((p) => mapApiProduct(p));
-        setProducts(mapped);
+
+        // Obtendo todos os produdos
+        const apiProducts = await productApi.list().catch(() => []);
+        //const mapped = (apiProducts as ApiProduct[]).map((p) => mapApiProduct(p));
+        setApiProducts(apiProducts);
+
         setError(null);
       } catch (err) {
         const message = err instanceof Error ? err.message : "Erro ao carregar produtos";
@@ -97,6 +108,15 @@ export default function ProductsManagement() {
     fetchData();
     // somente na montagem
   }, []);
+
+  // Formata os dados da API para o formato esperado na UI
+  useEffect(() => {
+    if (collections && apiProducts) {
+      const mapped = (apiProducts as ApiProduct[]).map((p) => mapApiProduct(p));
+      setProducts(mapped)
+    }
+
+  }, [collections, apiProducts])
 
   const filteredProducts = products.filter(
     (product) =>
