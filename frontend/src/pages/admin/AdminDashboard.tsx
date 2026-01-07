@@ -46,7 +46,6 @@ export default function AdminDashboard() {
   // Representa a lista de quantidade de produtos por categoria no formato do objeto da UI.
   const productsByCategory = useMemo(() => (apiStats?.products_by_category || []), [apiStats])
   const totalProducts = useMemo(() => (apiStats?.products_count || 0), [apiStats])
-  console.log(productsByCategory)
 
   // Aqui devemos ter os dados da API
 
