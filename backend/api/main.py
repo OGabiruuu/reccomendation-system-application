@@ -1,20 +1,20 @@
 from contextlib import asynccontextmanager
+from sys import prefix
 
 from core.bdConnection import Base, engine
 from decouple import config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Importando as models
-from models import collection, product, user
-from routers.auth import router as auth_router
-from routers.collection import router as collection_router
 
 # Importando os routers
+from routers.auth import router as auth_router
+from routers.collection import router as collection_router
 from routers.interaction import router as interaction_router
 from routers.product import router as product_router
 from routers.user import router as user_router
 from routers.recommendation import router as recommendation_router
+from routers.stats import router as stats_router
 
 
 @asynccontextmanager
@@ -33,9 +33,7 @@ async def lifespan(app: FastAPI):
 
 
 # Instanciando a API
-app = FastAPI(
-    title="Arte em Laço's recommender Web API", version="1.0.0", lifespan=lifespan
-)
+app = FastAPI(title="Arte em Laço's recommender Web API", version="1.0.0", lifespan=lifespan)
 
 # Configuração de CORS para permitir o frontend (ajuste via env se precisar)
 # Permite múltiplas origens separadas por vírgula. Se usar "*", desativa credenciais.
@@ -64,4 +62,5 @@ app.include_router(product_router, prefix="/products", tags=["Product"])
 app.include_router(collection_router, prefix="/collections", tags=["Collection"])
 app.include_router(interaction_router, prefix="/interactions", tags=["Interaction"])
 app.include_router(auth_router, prefix="/auth", tags=["Authentication"])
-app.include_router(recommendation_router, prefix="/recommendations")
+app.include_router(recommendation_router, prefix="/recommendations", tags=["Recommendation"])
+app.include_router(stats_router, prefix="/stats", tags=["Statistics"])
