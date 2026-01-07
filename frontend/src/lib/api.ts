@@ -56,7 +56,6 @@ export const api = {
     apiClient.delete<T>(url, config).then((res) => res.data),
 };
 
-//
 export const productApi = {
   create: (data: unknown) => api.post("/products", data),
   get: (id: string) => api.get(`/products/${id}`),
@@ -97,4 +96,8 @@ export const recommendationApi = {
     api.get("/recommendations", {
       params: productId ? { product_id: productId } : undefined,
     }),
+};
+
+export const statisticsApi = {
+  list: () => api.get("/stats"),
 };
