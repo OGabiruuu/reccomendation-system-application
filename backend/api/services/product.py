@@ -69,7 +69,7 @@ async def upload_image(db: AsyncSession, id: int, file: UploadFile):
         file_ext = ".img"
 
     file_path = f"./uploads/{id}.{file_ext}"
-    file_url = f"images/{id}.{file_ext}"
+    file_url = f"http://localhost:3000/images/{id}.{file_ext}"
 
 
     # Atualizando o produto existente

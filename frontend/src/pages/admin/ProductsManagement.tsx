@@ -49,6 +49,7 @@ type Product = {
 export default function ProductsManagement() {
   const [apiProducts, setApiProducts] = useState<ApiProduct[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [collections, setCollections] = useState<Collection[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -59,9 +60,6 @@ export default function ProductsManagement() {
 
   const mapApiProduct = (data: ApiProduct) => {
     const colName = collections.find((c) => c.id === data.collection_id)?.name;
-
-    //console.log(collections)
-    //console.log(colName)
 
     return {
       id: String(data.id),
@@ -128,9 +126,9 @@ export default function ProductsManagement() {
     price: product.price,
     color: product.colors,
     category: product.category,
+    image: "",
     size: product.sizes.join(","),
     description: product.description,
-    image: product.image,
     model: product.model || "manual",
     collection_id: product.collectionId,
   });
@@ -141,11 +139,21 @@ export default function ProductsManagement() {
       return;
     }
     try {
+      // Primeiro os dados em json são enviados e só depois a imagem é atualizada.
+      console.log(toBackendPayload(product))
       const created = (await productApi.create(toBackendPayload(product))) as ApiProduct;
-      const mapped = mapApiProduct(created); // É preciso implementar essa funcao com o codigo da linha 69
+
+      console.log(imageFile)
+
+      const fd = new FormData();
+      fd.append("file", imageFile)
+      console.log(fd)
+      const updated = (await productApi.updateImage(String(created.id), fd)) as ApiProduct
+      const mapped = mapApiProduct(updated); // É preciso implementar essa funcao com o codigo da linha 69
       setProducts((prev) => [...prev, mapped]);
       toast.success("Produto adicionado com sucesso!");
       setIsFormOpen(false);
+      setImageFile(null)
     } catch (err) {
       const message = err instanceof Error ? err.message : "Erro ao adicionar produto";
       toast.error(message);
@@ -158,7 +166,16 @@ export default function ProductsManagement() {
       return;
     }
     try {
+      // Verificando se é necessário atualizar a imagem
+      if (imageFile !== null) {
+        const fd = new FormData();
+        fd.append("file", imageFile)
+        await productApi.updateImage(updatedProduct.id, fd)
+      }
+
+      // Atualizando os outros dados do produto
       const saved = (await productApi.update(updatedProduct.id, toBackendPayload(updatedProduct))) as ApiProduct;
+
       const mapped: Product = {
         id: String(saved.id),
         name: saved.name,
@@ -308,6 +325,8 @@ export default function ProductsManagement() {
         open={isFormOpen}
         onOpenChange={setIsFormOpen}
         product={editingProduct}
+        imageFile={imageFile}
+        setImageFile={setImageFile}
         onSubmit={editingProduct ? handleEditProduct : handleAddProduct}
         collections={collections}
       />

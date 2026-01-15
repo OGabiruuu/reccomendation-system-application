@@ -1,5 +1,5 @@
 from core.bdConnection import get_db
-from fastapi import APIRouter, Depends, HTTPException, UploadFile
+from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from schemas.product import Product, ProductCreate, ProductUpdate
 from services.product import (
     create_product,
@@ -48,7 +48,7 @@ async def update(
 
 
 @router.patch("/{product_id}/image", response_model=Product)
-async def update_image(product_id: int, file: UploadFile, db: AsyncSession = Depends(get_db)):
+async def update_image(product_id: int, file: UploadFile = File(...), db: AsyncSession = Depends(get_db)):
     updated = await upload_image(db, product_id, file)
 
     if not updated:

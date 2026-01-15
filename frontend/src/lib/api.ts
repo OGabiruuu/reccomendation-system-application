@@ -61,6 +61,10 @@ export const productApi = {
   get: (id: string) => api.get(`/products/${id}`),
   list: () => api.get("/products"),
   update: (id: string, data: unknown) => api.patch(`/products/${id}`, data),
+  updateImage: (id: string, data: unknown) =>
+    api.patch(`/products/${id}/image`, data, {
+      headers: { "Content-Type": undefined as any },
+    }),
   remove: (id: string) => api.delete(`/products/${id}`),
 };
 

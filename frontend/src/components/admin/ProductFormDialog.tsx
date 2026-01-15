@@ -23,7 +23,6 @@ export type AdminProductFormData = {
   category: string;
   collectionId?: number;
   collection?: string;
-  image: string;
   colors: ColorOption[];
   sizes: string[];
   model?: string;
@@ -35,22 +34,24 @@ interface ProductFormDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   product: AdminProductFormData | null;
+  imageFile: File | null
+  setImageFile: React.Dispatch<React.SetStateAction<File | null>>
   onSubmit: (product: AdminProductFormData) => void;
   collections?: CollectionOption[];
 }
 
-export function ProductFormDialog({ open, onOpenChange, product, onSubmit, collections = [] }: ProductFormDialogProps) {
+export function ProductFormDialog({ open, onOpenChange, product, imageFile, setImageFile, onSubmit, collections = [] }: ProductFormDialogProps) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     price: '',
     category: '',
     collectionId: '',
-    image: '',
     colors: [] as ColorOption[],
     sizes: [] as string[],
     model: 'manual',
   });
+  const [imagePreview, setImagePreview] = useState<string | undefined>(undefined);
   const [newColorName, setNewColorName] = useState('');
   const [newColorHex, setNewColorHex] = useState('#000000');
   const [newSize, setNewSize] = useState('');
@@ -63,7 +64,6 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit, colle
         price: product.price.toString(),
         category: product.category,
         collectionId: product.collectionId ? String(product.collectionId) : '',
-        image: product.image,
         colors: product.colors,
         sizes: product.sizes,
         model: product.model || 'manual',
@@ -75,7 +75,6 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit, colle
         price: '',
         category: '',
         collectionId: '',
-        image: '',
         colors: [],
         sizes: [],
         model: 'manual',
@@ -85,7 +84,7 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit, colle
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!formData.name || !formData.price || !formData.category) {
       toast.error('Preencha todos os campos obrigatórios');
       return;
@@ -103,7 +102,6 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit, colle
       price: parseFloat(formData.price),
       category: formData.category,
       collectionId: Number(formData.collectionId),
-      image: formData.image || 'https://images.unsplash.com/photo-1523381210434-271e8be1f52b',
       colors: formData.colors.length > 0 ? formData.colors : [{ name: 'Preto', hex: '#000000' }],
       sizes: formData.sizes.length > 0 ? formData.sizes : ['U'],
       model: formData.model || 'manual',
@@ -141,11 +139,8 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit, colle
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setFormData({ ...formData, image: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      setImageFile(file)
+      setImagePreview(URL.createObjectURL(file))
     }
   };
 
@@ -166,9 +161,9 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit, colle
           <div className="space-y-2">
             <Label>Imagem do Produto</Label>
             <div className="flex items-center gap-4">
-              {formData.image && (
+              {imageFile && (
                 <div className="w-24 h-24 rounded-lg overflow-hidden bg-muted">
-                  <img src={formData.image} alt="Preview" className="w-full h-full object-cover" />
+                  <img src={imagePreview} alt="Preview" className="w-full h-full object-cover" />
                 </div>
               )}
               <div className="flex-1">
@@ -177,15 +172,6 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit, colle
                   accept="image/*"
                   onChange={handleImageUpload}
                   className="cursor-pointer hover:border-primary/40 transition-smooth"
-                />
-                <p className="text-xs text-muted-foreground mt-1">
-                  Ou cole uma URL de imagem abaixo
-                </p>
-                <Input
-                  placeholder="https://..."
-                  value={formData.image}
-                  onChange={(e:any) => setFormData({ ...formData, image: e.target.value })}
-                  className="mt-2 hover:border-primary/40 transition-smooth"
                 />
               </div>
             </div>
@@ -198,7 +184,7 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit, colle
               <Input
                 id="name"
                 value={formData.name}
-                onChange={(e:any) => setFormData({ ...formData, name: e.target.value })}
+                onChange={(e: any) => setFormData({ ...formData, name: e.target.value })}
                 className="hover:border-primary/40 transition-smooth"
                 required
               />
@@ -211,7 +197,7 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit, colle
                 type="number"
                 step="0.01"
                 value={formData.price}
-                onChange={(e:any) => setFormData({ ...formData, price: e.target.value })}
+                onChange={(e: any) => setFormData({ ...formData, price: e.target.value })}
                 className="hover:border-primary/40 transition-smooth"
                 required
               />
@@ -222,7 +208,7 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit, colle
               <Input
                 id="category"
                 value={formData.category}
-                onChange={(e:any) => setFormData({ ...formData, category: e.target.value })}
+                onChange={(e: any) => setFormData({ ...formData, category: e.target.value })}
                 placeholder="Ex: Calçados"
                 className="hover:border-primary/40 transition-smooth"
                 required
@@ -234,7 +220,7 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit, colle
               <select
                 id="collection"
                 value={formData.collectionId}
-                onChange={(e:any) => setFormData({ ...formData, collectionId: e.target.value })}
+                onChange={(e: any) => setFormData({ ...formData, collectionId: e.target.value })}
                 className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm hover:border-primary/40 transition-smooth"
                 required
               >
@@ -252,7 +238,7 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit, colle
               <Textarea
                 id="description"
                 value={formData.description}
-                onChange={(e:any) => setFormData({ ...formData, description: e.target.value })}
+                onChange={(e: any) => setFormData({ ...formData, description: e.target.value })}
                 rows={3}
               />
             </div>
@@ -265,13 +251,13 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit, colle
               <Input
                 placeholder="Nome da cor (ex: Azul Marinho)"
                 value={newColorName}
-                onChange={(e:any) => setNewColorName(e.target.value)}
+                onChange={(e: any) => setNewColorName(e.target.value)}
                 className="flex-1 min-w-[180px]"
               />
               <Input
                 type="color"
                 value={newColorHex}
-                onChange={(e:any) => setNewColorHex(e.target.value)}
+                onChange={(e: any) => setNewColorHex(e.target.value)}
                 className="w-20"
               />
               <Button type="button" onClick={addColor} variant="outline" size="sm">
@@ -305,9 +291,9 @@ export function ProductFormDialog({ open, onOpenChange, product, onSubmit, colle
             <div className="flex gap-2">
               <Input
                 value={newSize}
-                onChange={(e:any) => setNewSize(e.target.value)}
+                onChange={(e: any) => setNewSize(e.target.value)}
                 placeholder="Ex: P, M, G, 38, 40..."
-                onKeyPress={(e:any) => e.key === 'Enter' && (e.preventDefault(), addSize())}
+                onKeyPress={(e: any) => e.key === 'Enter' && (e.preventDefault(), addSize())}
               />
               <Button type="button" onClick={addSize} variant="outline" size="sm">
                 Adicionar
