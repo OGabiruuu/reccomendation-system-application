@@ -1,10 +1,11 @@
 from contextlib import asynccontextmanager
-from sys import prefix
+from pathlib import Path
 
 from core.bdConnection import Base, engine
 from decouple import config
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 
 # Importando os routers
@@ -34,6 +35,14 @@ async def lifespan(app: FastAPI):
 
 # Instanciando a API
 app = FastAPI(title="Arte em Laço's recommender Web API", version="1.0.0", lifespan=lifespan)
+
+# Configurando o aramazenamento de imagens
+UPLOAD_DIR = Path("uploads")
+UPLOAD_DIR.mkdir(exist_ok=True)     # Garante que ele vai ser criado
+
+# Criando uma rota base para esse diretório
+app.mount("/images", StaticFiles(directory=str(UPLOAD_DIR)), name="images")
+
 
 # Configuração de CORS para permitir o frontend (ajuste via env se precisar)
 # Permite múltiplas origens separadas por vírgula. Se usar "*", desativa credenciais.

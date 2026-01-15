@@ -1,5 +1,5 @@
 from core.bdConnection import get_db
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, UploadFile
 from schemas.product import Product, ProductCreate, ProductUpdate
 from services.product import (
     create_product,
@@ -7,6 +7,7 @@ from services.product import (
     get_product_by_id,
     list_all_products,
     update_product,
+    upload_image
 )
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -45,6 +46,14 @@ async def update(
         raise HTTPException(404, "product not found")
     return updated
 
+
+@router.patch("/{product_id}/image", response_model=Product)
+async def update_image(product_id: int, file: UploadFile, db: AsyncSession = Depends(get_db)):
+    updated = await upload_image(db, product_id, file)
+
+    if not updated:
+        raise HTTPException(404, "Product not found")
+    return updated
 
 @router.delete("/{product_id}")
 async def remove(product_id: int, db: AsyncSession = Depends(get_db)):

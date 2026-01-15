@@ -4,12 +4,14 @@
 # Arquivos de ambiente
 *.env
 sql
+uploads/
 .venv
 venv
 
 # Dependencias python
 __pycache__/
 .python-version
+
 
 # Arquivos arbitrários
 *.tmp
