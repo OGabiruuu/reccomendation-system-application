@@ -3,7 +3,7 @@ from models.product import Product as ProductModel
 from schemas.product import ProductCreate, ProductUpdate
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-import os
+from pathlib import Path
 
 
 async def create_product(db: AsyncSession, data: ProductCreate):
@@ -31,12 +31,26 @@ async def get_product_by_id(db: AsyncSession, id: int):
     return result.scalar_one_or_none()
 
 
+def delete_product_image(image_url: str):
+    # Obtendo o caminho real da imagem
+    image_name = image_url.split('/')[-1]
+    image_path = Path(f"uploads/{image_name}")
+
+    # Removendo do sistema de arquivos
+    if image_path.exists():
+        image_path.unlink()
+    return
+
 async def delete_product(db: AsyncSession, id: int):
     """Controller da rota que deleta um prodto da base de dados"""
     product = await get_product_by_id(db, id)
 
     if not product:
         return None
+
+    # Deletando a imagem do sistema de arquivos
+    if product.image is not "":
+        delete_product_image(str(product.image))
 
     await db.delete(product)
     await db.commit()
@@ -59,6 +73,7 @@ async def update_product(db: AsyncSession, id: int, data: ProductUpdate):
     await db.refresh(product)
     return product
 
+# Há uma rota separada para que os dados em JSON não se misturem com a imagem binária (talvez isso precise ser refatorado...)
 async def upload_image(db: AsyncSession, id: int, file: UploadFile):
     """Cria e atualiza imagens em um diretório específico do sistema de arquivos"""
 
