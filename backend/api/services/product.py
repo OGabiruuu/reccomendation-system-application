@@ -49,7 +49,7 @@ async def delete_product(db: AsyncSession, id: int):
         return None
 
     # Deletando a imagem do sistema de arquivos
-    if product.image is not "":
+    if str(product.image) != "":
         delete_product_image(str(product.image))
 
     await db.delete(product)

@@ -126,7 +126,6 @@ export default function ProductsManagement() {
     price: product.price,
     color: product.colors,
     category: product.category,
-    image: "",
     size: product.sizes.join(","),
     description: product.description,
     model: product.model || "manual",
@@ -175,6 +174,7 @@ export default function ProductsManagement() {
 
       // Atualizando os outros dados do produto
       const saved = (await productApi.update(updatedProduct.id, toBackendPayload(updatedProduct))) as ApiProduct;
+      console.log(saved.image)
 
       const mapped: Product = {
         id: String(saved.id),
